@@ -1,6 +1,5 @@
 package com.patrycja.pound.resource;
 
-import com.patrycja.pound.models.Cat;
 import com.patrycja.pound.models.dto.CatDTO;
 import com.patrycja.pound.services.CatService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,17 +16,17 @@ public class CatResource {
     private CatService catService;
 
     @GetMapping
-    public List<Cat> getListAllCats(@RequestParam(value = "sort", defaultValue = "") String sort) {
+    public List<CatDTO> getListAllCats(@RequestParam(value = "sort", defaultValue = "") String sort) {
         return catService.getAllCats(sort);
     }
 
     @GetMapping("/colors/{color}")
-    public List<Cat> getCatByColor(@PathVariable("color") String color) {
+    public List<CatDTO> getCatByColor(@PathVariable("color") String color) {
         return catService.getCatByColor(color);
     }
 
     @PostMapping
-    public ResponseEntity<String> addCat(@RequestBody CatDTO catDTO) {
+    public String addCat(@RequestBody CatDTO catDTO) {
         return catService.addCat(catDTO);
     }
 
@@ -37,7 +36,7 @@ public class CatResource {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> updateCat(@PathVariable("id") int id, @RequestBody Cat cat) {
-        return catService.updateCat(id, cat);
+    public ResponseEntity<String> updateCat(@PathVariable("id") int id, @RequestBody CatDTO catDTO) {
+        return catService.updateCat(id, catDTO);
     }
 }

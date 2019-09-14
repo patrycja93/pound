@@ -1,10 +1,17 @@
-package com.patrycja.pound.models;
+package com.patrycja.pound.models.domain;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.ToString;
 
 import javax.persistence.*;
 
 @Entity
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@Builder
+@ToString
+@AllArgsConstructor
 @Table(name = "animals")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class Animal {
 
     @Id

@@ -1,9 +1,12 @@
-package com.patrycja.pound.models;
+package com.patrycja.pound.models.domain;
+
+import lombok.Builder;
 
 import javax.persistence.*;
 import java.util.List;
 
 @Entity
+@Builder
 @Table(name = "zookeepers")
 public class Zookeeper {
 
@@ -12,7 +15,7 @@ public class Zookeeper {
     private int id;
     private String name;
     private String surname;
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(cascade = {CascadeType.ALL})
     private List<Animal> animals;
 
     public Zookeeper() {

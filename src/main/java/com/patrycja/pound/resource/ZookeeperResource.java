@@ -1,6 +1,7 @@
 package com.patrycja.pound.resource;
 
-import com.patrycja.pound.models.Zookeeper;
+import com.patrycja.pound.models.domain.Zookeeper;
+import com.patrycja.pound.models.dto.ZookeeperDTO;
 import com.patrycja.pound.services.ZookeeperService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,12 +17,22 @@ public class ZookeeperResource {
     private ZookeeperService zookeeperService;
 
     @PostMapping
-    public ResponseEntity<String> addZookeeper(@RequestBody Zookeeper zookeeper) {
-        return zookeeperService.addZookeeper(zookeeper);
+    public ResponseEntity<String> addZookeeper(@RequestBody ZookeeperDTO zookeeperDTO) {
+        return zookeeperService.addZookeeper(zookeeperDTO);
     }
 
     @GetMapping
-    public List<Zookeeper> getZookeepers() {
+    public List<ZookeeperDTO> getZookeepers() {
         return zookeeperService.getZookeepers();
     }
+
+    @PutMapping("/{id}")
+    public String update(@PathVariable("id") int id, @RequestBody ZookeeperDTO zookeeperDTO){
+        return zookeeperService.updateZookeeper(id, zookeeperDTO);
+    }
+
+    /*@DeleteMapping("{id}")
+    public String delete(@PathVariable("id") int id){
+        return zookeeperService.deleteZookeeper(id);
+    }*/
 }

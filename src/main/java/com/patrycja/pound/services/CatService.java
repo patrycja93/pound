@@ -1,43 +1,36 @@
 package com.patrycja.pound.services;
 
 import com.patrycja.pound.enums.CatColor;
-import com.patrycja.pound.exceptions.NotFoundArgumentException;
-import com.patrycja.pound.models.Animal;
-import com.patrycja.pound.models.Cat;
-import com.patrycja.pound.models.Zookeeper;
+import com.patrycja.pound.models.domain.Cat;
+import com.patrycja.pound.models.domain.Zookeeper;
 import com.patrycja.pound.models.dto.CatDTO;
-import com.patrycja.pound.repository.AnimalRepository;
 import com.patrycja.pound.repository.CatRepository;
-import com.patrycja.pound.repository.ZookeeperRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.patrycja.pound.services.mappers.CatMapper;
+import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class CatService {
 
-    @Autowired
-    private CatRepository catRepository;
-    @Autowired
-    private CatMapper catMapper;
-    @Autowired
-    private ZookeeperRepository zookeeperRepository;
-    @Autowired
-    private AnimalRepository animalRepository;
+    private final CatRepository catRepository;
+    private final CatMapper catMapper;
+    private final ZookeeperService zookeeperService;
+    private final AnimalService animalService;
 
-    public List<Cat> getAllCats(String sort) {
+    public List<CatDTO> getAllCats(String sort) {
         List<Cat> cats = catRepository.findAll();
         if (sort.toLowerCase().equals("desc")) {
             Collections.reverse(cats);
-            return cats;
         }
-        return cats;
+        return cats.stream()
+                .map(catMapper::map)
+                .collect(Collectors.toList());
     }
 
     public String getCatName(int id) {
@@ -50,58 +43,36 @@ public class CatService {
         return catRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("No cat was found with this id."));
     }
 
-    @Transactional
-    public ResponseEntity<String> addCat(CatDTO catDTO) {
+    public String addCat(CatDTO catDTO) {
         Cat cat = catMapper.map(catDTO);
-        //TODO: change to custom query
-        Zookeeper zookeeper = getZookeeper();
+        Zookeeper zookeeper = zookeeperService.findFreeZookeeper();
         cat.setZookeeper(zookeeper);
         catRepository.save(cat);
-        saveZookeeper(cat, zookeeper);
-        //addAnimal(cat);
-        return ResponseEntity.ok("Successfully added kitty");
-    }
-
-    private void addAnimal(Cat cat) {
-        Animal animal = new Animal();
-        animal.setName(cat.getName());
-        animal.setAge(cat.getAge());
-        animal.setZookeeper(cat.getZookeeper());
-        animalRepository.save(animal);
-    }
-
-    private void saveZookeeper(Cat cat, Zookeeper zookeeper) {
-        zookeeper.addAnimal(cat);
-        zookeeperRepository.save(zookeeper);
-    }
-
-    private Zookeeper getZookeeper() {
-        return zookeeperRepository.findAll().stream()
-                .filter(z -> z.getAnimals().size() < 10)
-                .sorted((o1, o2) -> ThreadLocalRandom.current().nextInt(-1, 2))
-                .findAny()
-                .orElseThrow(() -> new NotFoundArgumentException("Not found free zookeepers."));
+        zookeeperService.saveAnimalToZookeeper(cat, zookeeper);
+        return ResponseEntity.ok("Successfully added kitty").toString();
     }
 
     public ResponseEntity<String> deleteCat(int id) {
-        if (catRepository.getOne(id) == null) {
+        Cat cat = catRepository.getOne(id);
+        if (cat == null) {
             return ResponseEntity.unprocessableEntity().body("Not found cat for this id.");
         }
-        catRepository.deleteById(id);
+        animalService.deleteAnimalFromZookeeper(cat);
+        //deselectZookeeper(cat);
+        catRepository.delete(cat);
         return ResponseEntity.ok("Successfully deleted kitty");
     }
 
-    public ResponseEntity<String> updateCat(int id, Cat cat) {
+    public ResponseEntity<String> updateCat(int id, CatDTO catDTO) {
         Cat updateCat = catRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("No cat founded"));
-        updateCat.setAge(cat.getAge());
-        updateCat.setColor(cat.getColor());
-        updateCat.setName(cat.getName());
-        updateCat.setZookeeper(cat.getZookeeper());
+        updateCat.setAge(catDTO.getAge());
+        updateCat.setColor(catDTO.getColor());
+        updateCat.setName(catDTO.getName());
         catRepository.save(updateCat);
         return ResponseEntity.ok("Cat was updated successfully.");
     }
 
-    public List<Cat> getCatByColor(String color) {
+    public List<CatDTO> getCatByColor(String color) {
         return getAllCats("").stream()
                 .filter(c -> c.getColor() == CatColor.valueOf(color.toUpperCase()))
                 .collect(Collectors.toList());

@@ -1,8 +1,9 @@
-package com.patrycja.pound.models;
+package com.patrycja.pound.models.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.patrycja.pound.enums.CatColor;
+import lombok.AllArgsConstructor;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -11,6 +12,7 @@ import javax.persistence.Enumerated;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Entity
+@AllArgsConstructor
 public class Cat extends Animal {
 
     @Enumerated(EnumType.STRING)

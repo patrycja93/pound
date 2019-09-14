@@ -1,20 +1,20 @@
 package com.patrycja.pound.models.dto;
 
-import com.patrycja.pound.enums.CatColor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Builder
-@NoArgsConstructor
+import java.util.List;
+
 @Data
+@NoArgsConstructor
+@Builder
 @AllArgsConstructor
-public class CatDTO {
+public class ZookeeperDTO {
 
     private int id;
     private String name;
-    private int age;
-    private CatColor color;
-    private String zookeeperName;
+    private String surname;
+    private List<Integer> animals;
 }

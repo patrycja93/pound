@@ -1,6 +1,6 @@
 package com.patrycja.pound.resource;
 
-import com.patrycja.pound.models.Animal;
+import com.patrycja.pound.models.dto.AnimalDTO;
 import com.patrycja.pound.services.AnimalService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,8 +19,9 @@ public class AnimalResource {
     }
 
     @GetMapping
-    public List<Animal> getAll(){
-        System.out.println("ALL :" + animalService.getAnimals());
-        return animalService.getAnimals();
+    public List<AnimalDTO> getAll() {
+        List<AnimalDTO> animals = animalService.getAnimals();
+        System.out.println("ALL :" + animals);
+        return animals;
     }
 }

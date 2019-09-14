@@ -1,14 +1,19 @@
-package com.patrycja.pound.models;
+package com.patrycja.pound.models.domain;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
+import javax.persistence.Entity;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
 public class Dog extends Animal {
 
-    @Getter
-    @Setter
     private int numberOfTooth;
 
+    @Builder(builderMethodName = "dogBuilder")
     public Dog(String name, int age, Zookeeper zookeeper, int numberOfTooth) {
         super(name, age, zookeeper);
         this.numberOfTooth = numberOfTooth;
