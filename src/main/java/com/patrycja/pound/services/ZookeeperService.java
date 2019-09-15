@@ -74,4 +74,12 @@ public class ZookeeperService {
                     .map(zookeeper -> )
         }
     }*/
+
+    public void deleteAnimalFromZookeeper(Animal animal){
+        zookeeperRepository.findAll().stream()
+                .filter(z -> z.getAnimals().contains(animal))
+                .findFirst()
+                .map(z -> z.getAnimals().remove(animal))
+                .orElseThrow(() -> new NotFoundArgumentException("Not found animal with this id."));
+    }
 }

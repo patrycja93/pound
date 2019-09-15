@@ -57,7 +57,7 @@ public class CatService {
         if (cat == null) {
             return ResponseEntity.unprocessableEntity().body("Not found cat for this id.");
         }
-        animalService.deleteAnimalFromZookeeper(cat);
+        zookeeperService.deleteAnimalFromZookeeper(cat);
         //deselectZookeeper(cat);
         catRepository.delete(cat);
         return ResponseEntity.ok("Successfully deleted kitty");

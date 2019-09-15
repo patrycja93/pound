@@ -30,8 +30,6 @@ public class CatServiceTest {
     @Mock
     CatMapper catMapper;
     @Mock
-    AnimalService animalService;
-    @Mock
     ZookeeperService zookeeperService;
 
     @InjectMocks
@@ -98,7 +96,7 @@ public class CatServiceTest {
         int id = 1;
         when(catRepository.getOne(id)).thenReturn(cat);
         catService.deleteCat(id);
-        verify(animalService, times(1)).deleteAnimalFromZookeeper(cat);
+        verify(zookeeperService, times(1)).deleteAnimalFromZookeeper(cat);
         verify(catRepository, times(1)).delete(cat);
     }
 

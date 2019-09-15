@@ -32,7 +32,7 @@ public class DogService {
 
     public String deleteDog(int id) {
         Dog dog = dogRepository.getOne(id);
-        animalService.deleteAnimalFromZookeeper(dog);
+        zookeeperService.deleteAnimalFromZookeeper(dog);
         dogRepository.deleteById(id);
         return ResponseEntity.ok("Successfully deleted dog.").toString();
     }
