@@ -1,12 +1,14 @@
 package com.patrycja.pound.services;
 
 import com.patrycja.pound.enums.CatColor;
+import com.patrycja.pound.models.domain.Animal;
 import com.patrycja.pound.models.domain.Cat;
+import com.patrycja.pound.models.domain.Dog;
 import com.patrycja.pound.models.domain.Zookeeper;
 import com.patrycja.pound.models.dto.CatDTO;
 import com.patrycja.pound.repository.CatRepository;
+import com.patrycja.pound.repository.ZookeeperRepository;
 import com.patrycja.pound.services.mappers.CatMapper;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -14,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,34 +26,21 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class CatServiceTest {
 
-    private Cat cat;
-
     @Mock
     CatRepository catRepository;
     @Mock
     CatMapper catMapper;
     @Mock
     ZookeeperService zookeeperService;
-
+    @Mock
+    ZookeeperRepository zookeeperRepository;
     @InjectMocks
     CatService catService;
-
-    public CatDTO createCatDTO() {
-        CatDTO catDTO = new CatDTO();
-        catDTO.setName("Pimpek");
-        catDTO.setAge(12);
-        catDTO.setColor(CatColor.GREY);
-        return catDTO;
-    }
-
-    @Before
-    public void createCat() {
-        cat = new Cat();
-    }
 
     @Test
     public void getCatByIdShouldReturnCat() {
         int id = 1;
+        Cat cat = getCat();
         when(catRepository.findById(id)).thenReturn(Optional.of(cat));
         Cat catById = catService.getCatById(id);
         assertThat(catById).isEqualTo(cat);
@@ -58,59 +48,87 @@ public class CatServiceTest {
 
     @Test
     public void updateCatShouldUpdateCatInfo() {
-        CatDTO catDTO = createCatDTO();
+        CatDTO catDTO = createCatDTOWithNamePimpekAgeTwelveAndColorGrey();
         int id = 1;
+        Cat cat = getCat();
         when(catRepository.findById(id)).thenReturn(Optional.of(cat));
         cat.setAge(catDTO.getAge());
         cat.setName(catDTO.getName());
         cat.setColor(catDTO.getColor());
         catService.updateCat(id, catDTO);
-        verify(catRepository, times(id)).save(cat);
+        verify(catRepository).save(cat);
     }
 
     @Test
     public void getCatNameShouldReturnCatName() {
         int id = 1;
-        String catName = "Pimpek";
-        cat.setName(catName);
+        Cat cat = getCatWithIdOneAndNamePimpek();
         when(catRepository.findById(id)).thenReturn(Optional.of(cat));
-        String foundCat = catService.getCatName(id);
-        assertThat(foundCat).isNotEqualTo(null);
-        assertThat(foundCat).isEqualTo(catName);
+        String foundCatName = catService.getCatName(id);
+        assertThat(foundCatName).isNotEqualTo(null);
+        assertThat(foundCatName).isEqualTo(cat.getName());
     }
 
     @Test
-    public void addCatShouldSaveCatToRepository() {
-        CatDTO catDTO = createCatDTO();
+    public void addCatShouldCreateNewCat() {
+        CatDTO catDTO = createCatDTOWithNamePimpekAgeTwelveAndColorGrey();
+        Cat cat = getCat();
         when(catMapper.map(catDTO)).thenReturn(cat);
         Zookeeper zookeeper = new Zookeeper();
         when(zookeeperService.findFreeZookeeper()).thenReturn(zookeeper);
         cat.setZookeeper(zookeeper);
         catService.addCat(catDTO);
-        verify(catRepository, times(1)).save(cat);
-        verify(zookeeperService, times(1)).saveAnimalToZookeeper(cat, zookeeper);
+        verify(catRepository).save(cat);
+        verify(zookeeperService).saveAnimalToZookeeper(cat, zookeeper);
     }
 
     @Test
-    public void deleteCatShouldDeleteCatFromRepository() {
+    public void deleteCatShouldDeleteCatFromRepositoryAndZookeeperListOfAnimals() {
         int id = 1;
+        Cat cat = getCatWithIdOne();
+
         when(catRepository.getOne(id)).thenReturn(cat);
         catService.deleteCat(id);
-        verify(zookeeperService, times(1)).deleteAnimalFromZookeeper(cat);
-        verify(catRepository, times(1)).delete(cat);
+        verify(zookeeperService).deleteAnimalFromZookeeper(cat);
+        verify(catRepository).delete(cat);
     }
 
     @Test
     public void getCatByColorShouldReturnListWithCatThisColor() {
         List<Cat> list = new ArrayList<>();
         String pink = "GREY";
-        CatDTO catDTO = createCatDTO();
+        CatDTO catDTO = createCatDTOWithNamePimpekAgeTwelveAndColorGrey();
         int expected = 1;
+        Cat cat = getCat();
         list.add(cat);
         when(catRepository.findAll()).thenReturn(list);
         when(catMapper.map(cat)).thenReturn(catDTO);
         List<CatDTO> catByColor = catService.getCatByColor(pink);
         assertThat(catByColor.size()).isEqualTo(expected);
         assertThat(catByColor.get(0).getColor().toString()).isEqualTo(pink);
+    }
+
+    private Cat getCat() {
+        return new Cat();
+    }
+
+    private Cat getCatWithIdOne() {
+        Cat cat = getCat();
+        cat.setId(1);
+        return cat;
+    }
+
+    private Cat getCatWithIdOneAndNamePimpek() {
+        Cat catWithIdOne = getCatWithIdOne();
+        catWithIdOne.setName("Pimpek");
+        return catWithIdOne;
+    }
+
+    private CatDTO createCatDTOWithNamePimpekAgeTwelveAndColorGrey() {
+        CatDTO catDTO = new CatDTO();
+        catDTO.setName("Pimpek");
+        catDTO.setAge(12);
+        catDTO.setColor(CatColor.GREY);
+        return catDTO;
     }
 }

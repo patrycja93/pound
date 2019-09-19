@@ -21,7 +21,6 @@ public class AnimalResource {
     @GetMapping
     public List<AnimalDTO> getAll() {
         List<AnimalDTO> animals = animalService.getAnimals();
-        System.out.println("ALL :" + animals);
         return animals;
     }
 }

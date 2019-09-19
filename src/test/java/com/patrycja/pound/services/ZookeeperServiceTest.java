@@ -1,7 +1,6 @@
 package com.patrycja.pound.services;
 
 import com.patrycja.pound.models.domain.Animal;
-import com.patrycja.pound.models.domain.Cat;
 import com.patrycja.pound.models.domain.Dog;
 import com.patrycja.pound.models.domain.Zookeeper;
 import com.patrycja.pound.models.dto.ZookeeperDTO;
@@ -33,75 +32,101 @@ public class ZookeeperServiceTest {
     @Test
     public void getZookeepersShouldReturnAllZookeepers() {
         List<Zookeeper> zookeepers = new ArrayList<>();
-        Zookeeper zookeeper = new Zookeeper();
-        ZookeeperDTO zookeeperDTO = new ZookeeperDTO();
+        Zookeeper zookeeper = getZookeeper();
         zookeepers.add(zookeeper);
+        ZookeeperDTO zookeeperDTO = getZookeeperDTO();
         when(zookeeperRepository.findAll()).thenReturn(zookeepers);
         when(zookeeperMapper.map(zookeeper)).thenReturn(zookeeperDTO);
         List<ZookeeperDTO> zookeepersList = zookeeperService.getZookeepers();
         assertThat(zookeepersList.size()).isEqualTo(1);
-        assertThat(zookeepersList.get(0)).isNotNull();
+        ZookeeperDTO actual = zookeepersList.get(0);
+        assertThat(actual).isNotNull();
     }
 
     @Test
     public void updateZookeeperShouldChangeZookeeperData() {
-        Zookeeper zookeeper = new Zookeeper();
-        ZookeeperDTO zookeeperDTO = new ZookeeperDTO();
-        zookeeperDTO.setSurname("Perkins");
+        Zookeeper zookeeper = getZookeeper();
+        ZookeeperDTO zookeeperDTO = getZookeeperDTOWithSurnamePerkins();
         int id = 1;
         when(zookeeperRepository.getOne(id)).thenReturn(zookeeper);
         zookeeperService.updateZookeeper(id, zookeeperDTO);
-        verify(zookeeperRepository, times(1)).save(zookeeper);
+        verify(zookeeperRepository).save(zookeeper);
         assertThat(zookeeper.getSurname()).isEqualTo(zookeeperDTO.getSurname());
     }
 
     @Test
     public void addZookeeperShouldAddZookeeperToRepository() {
-        ZookeeperDTO zookeeperDTO = new ZookeeperDTO();
-        Zookeeper zookeeper = new Zookeeper();
+        ZookeeperDTO zookeeperDTO = getZookeeperDTO();
+        Zookeeper zookeeper = getZookeeper();
         when(zookeeperMapper.map(zookeeperDTO)).thenReturn(zookeeper);
         zookeeperService.addZookeeper(zookeeperDTO);
-        verify(zookeeperRepository, times(1)).save(zookeeper);
+        verify(zookeeperRepository).save(zookeeper);
     }
 
     @Test
     public void deleteAnimalFromZookeeperShouldDeleteAnimalFromZookeeperList() {
         List<Zookeeper> zookeepers = new ArrayList<>();
-        Animal animal = new Animal();
-        Zookeeper zookeeper = new Zookeeper();
-        List<Animal> animals = new ArrayList<>();
-        animals.add(animal);
+        List<Animal> animals = getAnimalsList();
+        Zookeeper zookeeper = getZookeeper();
         zookeeper.setAnimals(animals);
         zookeepers.add(zookeeper);
         when(zookeeperRepository.findAll()).thenReturn(zookeepers);
+        Animal animal = animals.get(0);
         zookeeperService.deleteAnimalFromZookeeper(animal);
         assertThat(zookeeper.getAnimals().size()).isEqualTo(0);
     }
 
     @Test
     public void saveAnimalToZookeeperShouldAddAnimalToZookeeperListOfAnimals() {
-        Zookeeper zookeeper = new Zookeeper();
+        Zookeeper zookeeper = getZookeeper();
         List<Animal> animals = new ArrayList<>();
         zookeeper.setAnimals(animals);
-        Dog dog = new Dog();
-        dog.setId(1);
-        dog.setNumberOfTooth(6);
-        dog.setName("Pimpek");
-        dog.setAge(4);
+        Dog dog = getAnimalWithIdOneNumberOfToothSixNamePimpekAndAgeFour();
         zookeeperService.saveAnimalToZookeeper(dog, zookeeper);
-        verify(zookeeperRepository, times(1)).save(zookeeper);
-        assertThat(zookeeper.getAnimals().get(0)).isEqualTo(dog);
+        verify(zookeeperRepository).save(zookeeper);
+        Animal actual = zookeeper.getAnimals().get(0);
+        assertThat(actual).isEqualTo(dog);
     }
 
     @Test
     public void findFreeZookeeperShouldReturnZookeeperWithAnimalListLessThanTen() {
         List<Zookeeper> zookeeperList = new ArrayList<>();
-        Zookeeper zookeeper = new Zookeeper();
-        Animal animal = new Cat();
+        Zookeeper zookeeper = getZookeeper();
+        Animal animal = getAnimalWithIdOneNumberOfToothSixNamePimpekAndAgeFour();
         zookeeper.setAnimals(Collections.singletonList(animal));
         zookeeperList.add(zookeeper);
         when(zookeeperRepository.findAll()).thenReturn(zookeeperList);
         Zookeeper freeZookeeper = zookeeperService.findFreeZookeeper();
         assertThat(freeZookeeper).isNotNull();
+    }
+
+    private Zookeeper getZookeeper() {
+        return new Zookeeper();
+    }
+
+    private List<Animal> getAnimalsList() {
+        List<Animal> animals = new ArrayList<>();
+        Animal animal = new Animal();
+        animals.add(animal);
+        return animals;
+    }
+
+    private ZookeeperDTO getZookeeperDTO() {
+        return new ZookeeperDTO();
+    }
+
+    private ZookeeperDTO getZookeeperDTOWithSurnamePerkins() {
+        ZookeeperDTO zookeeperDTO = getZookeeperDTO();
+        zookeeperDTO.setSurname("Perkins");
+        return zookeeperDTO;
+    }
+
+    private Dog getAnimalWithIdOneNumberOfToothSixNamePimpekAndAgeFour() {
+        Dog dog = new Dog();
+        dog.setId(1);
+        dog.setNumberOfTooth(6);
+        dog.setName("Pimpek");
+        dog.setAge(4);
+        return dog;
     }
 }

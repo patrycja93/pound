@@ -52,24 +52,20 @@ public class CatService {
         return ResponseEntity.ok("Successfully added kitty").toString();
     }
 
-    public ResponseEntity<String> deleteCat(int id) {
-        Cat cat = catRepository.getOne(id);
-        if (cat == null) {
-            return ResponseEntity.unprocessableEntity().body("Not found cat for this id.");
-        }
+    public String deleteCat(int id) {
+        Cat cat = catRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Not found cat for this id."));
         zookeeperService.deleteAnimalFromZookeeper(cat);
-        //deselectZookeeper(cat);
         catRepository.delete(cat);
-        return ResponseEntity.ok("Successfully deleted kitty");
+        return ResponseEntity.ok("Successfully deleted kitty").toString();
     }
 
-    public ResponseEntity<String> updateCat(int id, CatDTO catDTO) {
+    public String updateCat(int id, CatDTO catDTO) {
         Cat updateCat = catRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("No cat founded"));
         updateCat.setAge(catDTO.getAge());
         updateCat.setColor(catDTO.getColor());
         updateCat.setName(catDTO.getName());
         catRepository.save(updateCat);
-        return ResponseEntity.ok("Cat was updated successfully.");
+        return ResponseEntity.ok("Cat was updated successfully.").toString();
     }
 
     public List<CatDTO> getCatByColor(String color) {
