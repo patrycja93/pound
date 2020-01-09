@@ -11,6 +11,7 @@ Headers: Content-Type application/json
 * odpowiedź: pusta tablica
 
 2. POST: /cats
+
 ciało zapytania:
 
 {
