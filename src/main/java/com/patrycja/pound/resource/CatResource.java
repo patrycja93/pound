@@ -26,17 +26,17 @@ public class CatResource {
     }
 
     @PostMapping
-    public String addCat(@RequestBody CatDTO catDTO) {
+    public ResponseEntity<String> addCat(@RequestBody CatDTO catDTO) {
         return catService.addCat(catDTO);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteCat(@PathVariable("id") int id) {
-        return catService.deleteCat(id);
+        return ResponseEntity.ok(catService.deleteCat(id));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<String> updateCat(@PathVariable("id") int id, @RequestBody CatDTO catDTO) {
-        return catService.updateCat(id, catDTO);
+        return ResponseEntity.ok(catService.updateCat(id, catDTO));
     }
 }

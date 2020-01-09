@@ -43,13 +43,13 @@ public class CatService {
         return catRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("No cat was found with this id."));
     }
 
-    public String addCat(CatDTO catDTO) {
+    public ResponseEntity<String> addCat(CatDTO catDTO) {
         Cat cat = catMapper.map(catDTO);
         Zookeeper zookeeper = zookeeperService.findFreeZookeeper();
         cat.setZookeeper(zookeeper);
         catRepository.save(cat);
         zookeeperService.saveAnimalToZookeeper(cat, zookeeper);
-        return ResponseEntity.ok("Successfully added kitty").toString();
+        return ResponseEntity.ok("Successfully added kitty");
     }
 
     public String deleteCat(int id) {
